@@ -4,6 +4,12 @@ Local ESPHome control of a Powertech PC190U gate controller using a Seeed Studio
 XIAO ESP32-C6 and a TXS0102 level translator. Home Assistant exposes two synchronized
 cover entities, each selecting a different opening command for **one physical gate**.
 
+The ESP32 module is intended to **replace the original Powertech WB3 Wi-Fi module
+and EyeOpener app-based gate control**. After setup, you operate the gate locally
+through Home Assistant, without needing the WB3 module or EyeOpener app for
+normal use. The original WB3 is used during initial passive capture to identify
+your module's source ID; see [PROTOCOL.md](PROTOCOL.md) for that setup step.
+
 This is an unofficial, reverse-engineered project. Earlier installation reports
 describe successful RX, TX, full/pedestrian operation and RF-remote feedback;
 they do not certify this revised example on your controller. Read
