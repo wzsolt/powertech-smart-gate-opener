@@ -1,0 +1,2 @@
+# Revalidate before changing versions; runtime setup priorities are internal APIs.
+esphome==2026.10.0

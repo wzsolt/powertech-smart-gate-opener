@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1240" height="790" viewBox="0 0 1240 790" role="img" aria-labelledby="title desc">
+  <title id="title">PC190U to TXS0102 to XIAO ESP32-C6 wiring</title>
+  <desc id="desc">Red GND is common. Green 5V connects to VB and conditionally XIAO 5V. Black PC190U TX connects B1 to A1 to XIAO D7 GPIO17 RX. XIAO D6 GPIO16 TX connects A2 to B2 to yellow PC190U RX. XIAO 3V3 connects VA and OE. Wire positions are symbolic, not connector pin order.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8Z" fill="#334155"/></marker>
+    <style>
+      text{font-family:Arial,sans-serif;fill:#172033;font-size:16px}
+      .head{font-size:22px;font-weight:bold}.small{font-size:14px}.note{font-size:15px}
+      .box{fill:#fff;stroke:#a8b5c7;stroke-width:2}.wire{fill:none;stroke-width:3}
+      .signal{stroke:#334155;marker-end:url(#arrow)}.power{stroke:#15803d}.ground{stroke:#dc2626}.low{stroke:#7c3aed}
+      .pin{fill:white;stroke:#475569;stroke-width:2}
+    </style>
+  </defs>
+  <rect width="1240" height="790" fill="#f5f7fb"/>
+  <text x="40" y="42" class="head">Powertech PC190U · TXS0102 · XIAO ESP32-C6</text>
+  <text x="40" y="72" class="note">Signal-level net diagram — no connector orientation or package-pin numbering is implied.</text>
+  <rect class="box" x="40" y="135" width="260" height="505" rx="12"/>
+  <rect class="box" x="450" y="135" width="300" height="505" rx="12"/>
+  <rect class="box" x="900" y="135" width="300" height="505" rx="12"/>
+  <text x="60" y="162" class="head">PC190U</text>
+  <text x="475" y="162" class="head">TXS0102</text>
+  <text x="920" y="162" class="head">XIAO ESP32-C6</text>
+  <text x="60" y="198">Green · +5V</text>
+  <text x="60" y="313">Black · TX output</text>
+  <text x="60" y="413">Yellow · RX input</text>
+  <text x="60" y="603">Red · GND</text>
+  <path class="wire power" d="M300 190H450M365 190V108H855V190H900"/>
+  <circle cx="365" cy="190" r="5" fill="#15803d"/>
+  <text x="475" y="197">VB · 5V</text>
+  <text x="920" y="197">5V input *</text>
+  <path class="wire low" d="M900 230H750M820 230V270H750"/>
+  <circle cx="820" cy="230" r="5" fill="#7c3aed"/>
+  <text x="920" y="237">3V3 output</text>
+  <text x="615" y="237">VA · 3.3V</text>
+  <text x="615" y="277">OE · 3.3V</text>
+  <path class="wire signal" d="M300 310H450"/>
+  <path class="wire signal" d="M750 310H900"/>
+  <path d="M503 310H694" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="470" y="316">B1</text><text x="711" y="316">A1</text>
+  <text x="920" y="307">D7 / GPIO17</text><text x="920" y="330" class="small">RX input · 3.3V</text>
+  <text x="332" y="294" class="small">5V side</text><text x="780" y="294" class="small">3.3V side</text>
+  <path class="wire signal" d="M450 410H300"/>
+  <path class="wire signal" d="M900 410H750"/>
+  <path d="M695 410H512" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="470" y="416">B2</text><text x="711" y="416">A2</text>
+  <text x="920" y="407">D6 / GPIO16</text><text x="920" y="430" class="small">TX output · 3.3V</text>
+  <text x="472" y="485" class="small">100 nF: VA → GND</text>
+  <text x="472" y="509" class="small">100 nF: VB → GND</text>
+  <text x="472" y="533" class="small">Check breakout for fitted capacitors.</text>
+  <path class="wire ground" d="M300 598H450M750 598H900"/>
+  <text x="475" y="604">GND · common reference</text><text x="920" y="604">GND</text>
+  <text x="920" y="485" class="small">Internal antenna switch:</text>
+  <text x="920" y="509" class="small">GPIO3 LOW → wait 100 ms</text>
+  <text x="920" y="533" class="small">GPIO14 HIGH → external U.FL</text>
+  <text x="920" y="557" class="small">on_boot priority: 750</text>
+  <g class="pin">
+    <circle cx="300" cy="190" r="4"/><circle cx="300" cy="310" r="4"/><circle cx="300" cy="410" r="4"/><circle cx="300" cy="598" r="4"/>
+    <circle cx="450" cy="190" r="4"/><circle cx="450" cy="310" r="4"/><circle cx="450" cy="410" r="4"/><circle cx="450" cy="598" r="4"/>
+    <circle cx="750" cy="230" r="4"/><circle cx="750" cy="270" r="4"/><circle cx="750" cy="310" r="4"/><circle cx="750" cy="410" r="4"/><circle cx="750" cy="598" r="4"/>
+    <circle cx="900" cy="190" r="4"/><circle cx="900" cy="230" r="4"/><circle cx="900" cy="310" r="4"/><circle cx="900" cy="410" r="4"/><circle cx="900" cy="598" r="4"/>
+  </g>
+  <text x="40" y="680" class="note">* Verify 5V polarity, current budget and USB/backfeed protection before connecting XIAO 5V.</text>
+  <text x="40" y="709" class="note">Passive capture: analyzer D0 → black TX; D1 → yellow RX; GND → red. Use voltage-safe inputs.</text>
+  <text x="40" y="738" class="note">Disconnect ESP TX during sniffing. Remove/isolate WB3 TX before enabling ESP control. Read SAFETY.md.</text>
+  <text x="40" y="767" class="note">OE tied to 3V3 is always enabled; review power sequencing against the TXS0102 datasheet.</text>
+</svg>

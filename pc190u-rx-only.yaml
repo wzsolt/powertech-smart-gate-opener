@@ -1,0 +1,44 @@
+# Passive ESPHome listener: physically leave A2/B2 (ESP TX) disconnected.
+# For sniffing both WB3 directions use the independent analyzer in PROTOCOL.md.
+packages:
+  board: !include esphome/common.yaml
+
+esphome:
+  name: powertech-listener
+  includes:
+    - esphome/gate_protocol.h
+    - <gate_protocol.h>  # Declare the custom type before generated global storage
+
+globals:
+  - id: passive_model
+    type: powertech::GateState
+    restore_value: false
+
+uart:
+  id: pc190_uart
+  rx_pin: GPIO17
+  # Deliberately no tx_pin, no UART write, no query, no control entities.
+  baud_rate: 9600
+  data_bits: 8
+  parity: NONE
+  stop_bits: 1
+  debug:
+    direction: RX
+    dummy_receiver: true
+    after:
+      bytes: 128
+      timeout: 20ms
+      delimiter: "\n"
+    sequence:
+      - lambda: |-
+          for (uint8_t byte : bytes) {
+            if (id(passive_model).feed(byte, millis()))
+              id(observed_status).publish_state(id(passive_model).status());
+          }
+
+text_sensor:
+  - platform: template
+    id: observed_status
+    name: "Passive Gate Observed Status"
+    entity_category: diagnostic
+    update_interval: never

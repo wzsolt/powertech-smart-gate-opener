@@ -1,0 +1,159 @@
+# PUBLIC EXAMPLE. Read SAFETY.md before connecting. Never share secrets.yaml.
+# Red=GND, black=PC190U TX, yellow=PC190U RX, green=+5V.
+substitutions:
+  wb3_src: !secret wb3_src
+
+packages:
+  board: !include esphome/common.yaml
+
+esphome:
+  includes:
+    - esphome/gate_protocol.h
+    # Copy the local header above, then also include it before custom globals.
+    # ESPHome 2026.10 emits ordinary local includes after global declarations.
+    - <gate_protocol.h>
+  on_boot:
+    - priority: -100
+      then:
+        - script.execute: publish_gate
+
+globals:
+  - id: gate_model
+    type: powertech::GateState
+    restore_value: false
+  - id: uart_tx_enabled
+    type: bool
+    restore_value: false
+    initial_value: !secret uart_tx_enabled
+
+uart:
+  id: pc190_uart
+  rx_pin: GPIO17  # XIAO D7, through TXS0102 A1/B1
+  tx_pin: GPIO16  # XIAO D6, through TXS0102 A2/B2; disconnect WB3 TX first
+  baud_rate: 9600
+  data_bits: 8
+  parity: NONE
+  stop_bits: 1
+  rx_buffer_size: 512
+  debug:
+    direction: RX
+    dummy_receiver: true
+    after:
+      bytes: 128
+      timeout: 20ms
+      delimiter: "\n"
+    sequence:
+      - lambda: |-
+          for (uint8_t byte : bytes) {
+            if (id(gate_model).feed(byte, millis())) id(publish_gate).execute();
+          }
+
+script:
+  - id: publish_gate
+    mode: restart
+    then:
+      - lambda: |-
+          auto &gate = id(gate_model);
+          auto operation = esphome::cover::COVER_OPERATION_IDLE;
+          if (gate.moving(millis())) {
+            operation = gate.state == powertech::State::CLOSING
+                ? esphome::cover::COVER_OPERATION_CLOSING
+                : esphome::cover::COVER_OPERATION_OPENING;
+          }
+          // Every recognized event normalizes BOTH views of the physical gate.
+          id(full_gate).position = gate.presentation_position();
+          id(full_gate).current_operation = operation;
+          id(small_gate).position = gate.presentation_position();
+          id(small_gate).current_operation = operation;
+          id(full_gate).publish_state(false);
+          id(small_gate).publish_state(false);
+          id(gate_status).publish_state(gate.status());
+          id(gate_mode).publish_state(gate.mode_name());
+  - id: send_command
+    mode: single
+    parameters:
+      command: string
+    then:
+      - lambda: |-
+          const auto frame = id(gate_model).request(
+              command, "${wb3_src}", id(uart_tx_enabled), millis());
+          if (frame.empty()) {
+            ESP_LOGW("gate", "Command blocked: TX disabled, invalid source, rate limit, or STOP guard");
+            return;
+          }
+          id(pc190_uart).write_str(frame.c_str());
+          ESP_LOGI("gate", "Command queued (no execution confirmation)");
+
+interval:
+  - interval: 1s
+    then:
+      - lambda: |-
+          if (id(gate_model).expire(millis())) {
+            ESP_LOGW("gate", "Movement feedback expired; physical state unknown");
+            id(publish_gate).execute();
+          }
+
+text_sensor:
+  - platform: template
+    id: gate_status
+    name: "Gate Observed Status"
+    update_interval: never
+    entity_category: diagnostic
+  - platform: template
+    id: gate_mode
+    name: "Gate Observed Mode"
+    update_interval: never
+    entity_category: diagnostic
+
+sensor:
+  - platform: template
+    name: "Gate Observation Age"
+    unit_of_measurement: s
+    accuracy_decimals: 0
+    entity_category: diagnostic
+    update_interval: 5s
+    lambda: |-
+      if (!id(gate_model).observed) return NAN;
+      return uint32_t(millis() - id(gate_model).last_event_ms) / 1000.0f;
+
+cover:
+  - platform: template
+    id: full_gate
+    name: "Gate FULL OPEN"
+    device_class: gate
+    has_position: false
+    assumed_state: true
+    optimistic: false
+    restore_mode: NO_RESTORE
+    open_action:
+      - script.execute:
+          id: send_command
+          command: "FULL OPEN"
+    close_action:
+      - script.execute:
+          id: send_command
+          command: "FULL CLOSE"
+    stop_action:
+      - script.execute:
+          id: send_command
+          command: "STOP"
+  - platform: template
+    id: small_gate
+    name: "Small Gate PED OPEN"
+    device_class: gate
+    has_position: false
+    assumed_state: true
+    optimistic: false
+    restore_mode: NO_RESTORE
+    open_action:
+      - script.execute:
+          id: send_command
+          command: "PED OPEN"
+    close_action:
+      - script.execute:
+          id: send_command
+          command: "FULL CLOSE"
+    stop_action:
+      - script.execute:
+          id: send_command
+          command: "STOP"
