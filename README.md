@@ -9,6 +9,14 @@ describe successful RX, TX, full/pedestrian operation and RF-remote feedback;
 they do not certify this revised example on your controller. Read
 [SAFETY.md](SAFETY.md) before wiring or enabling transmission.
 
+## Wiring diagram
+
+![PC190U, TXS0102 and XIAO ESP32-C6 wiring](docs/wiring.svg)
+
+Signal connections are shown, not physical connector order. See
+[HARDWARE.md](HARDWARE.md) for the complete pinout, parts list and electrical
+requirements.
+
 | Entity | Open | Close | Stop |
 |---|---|---|---|
 | Gate FULL OPEN | `FULL OPEN` | `FULL CLOSE` | `STOP`, only with recent observed movement |
