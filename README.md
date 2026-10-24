@@ -131,6 +131,5 @@ git remote -v
 
 This repository is initialized locally; no GitHub repository or remote is needed.
 When you choose to publish, stage only reviewed public files and inspect the
-staged diff again. No open-source license has been selected for you; add a license
-of your choice before inviting reuse. Powertech and Seeed names identify compatible
+staged diff again. This project is licensed under the [MIT License](LICENSE). Powertech and Seeed names identify compatible
 hardware and do not imply endorsement.
