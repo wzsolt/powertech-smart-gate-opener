@@ -121,29 +121,5 @@ pedestrian-open action in Home Assistant. Check the controls and notifications o
 your actual iOS/Home Assistant versions. Neither tile is an independent security
 sensor; `Gate Observed Status` is the more precise protocol diagnostic.
 
-## Privacy and local Git
-
-All public examples use placeholders. Never publish WB3/RF source identifiers,
-API keys, credentials, private IPs, raw captures, logs, firmware or ESPHome build
-directories. Source IDs are not proven authentication, but treat them as private
-installation data. `.gitignore` is a convenience, not a secret scanner or protection
-against `git add -f` or previously tracked secrets.
-
-Run tests and review the exact prospective commit before publishing:
-
-```sh
-python3 tools/check_public.py
-python tools/validate_esphome.py
-c++ -std=c++17 -Wall -Wextra -pedantic tests/test_gate.cpp -o /tmp/powertech-test
-/tmp/powertech-test
-python3 tests/test_sniff.py
-git status --short --untracked-files=all
-git diff --check
-git diff --cached
-git remote -v
-```
-
-This repository is initialized locally; no GitHub repository or remote is needed.
-When you choose to publish, stage only reviewed public files and inspect the
-staged diff again. This project is licensed under the [MIT License](LICENSE). Powertech and Seeed names identify compatible
+This project is licensed under the [MIT License](LICENSE). Powertech and Seeed names identify compatible
 hardware and do not imply endorsement.
